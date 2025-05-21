@@ -321,6 +321,45 @@
         max-width: 220px;
       }
     }
+
+    /* --- NEW CSS for floating GIFs --- */
+.floating-gifs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 9999; /* very top */
+}
+
+.floating-gifs img {
+  position: absolute;
+  bottom: 0;
+  width: 40px;
+  opacity: 0;
+  animation-name: float;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+
+@keyframes float {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) scale(1.5);
+    opacity: 0;
+  }
+}
+
+
   </style>
 </head>
 <body>
@@ -341,16 +380,82 @@
     <div class="sparkles">
       <div></div><div></div><div></div><div></div><div></div>
     </div>
+    <div class="floating-gifs"></div>
   </div>
 
   <div class="message">I Love You ❤️ I'm Sorry, Habibi</div>
   <div class="eternal-message">This is an eternal rose 🌹</div>
   <div class="time-counter" id="timeCounter"></div>
+  
 
-  <audio autoplay loop>
-    <source src="music.mp3" type="audio/mpeg" />
-    Your browser does not support the audio element.
-  </audio>
+<style>
+  /* Blur and overlay */
+  #playPrompt {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    backdrop-filter: blur(6px);
+    background: rgba(0, 0, 0, 0.5);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999;
+  }
+  /* Centered transparent box */
+  #playBox {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 1.3rem;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.3s ease;
+    max-width: 90vw;
+  }
+  #playBox:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+</style>
+
+<audio id="bgMusic" loop>
+  <source src="cant_help_falling_in_love.mp3" type="audio/mpeg" />
+  Your browser does not support the audio element.
+</audio>
+
+<div id="playPrompt">
+  <div id="playBox" tabindex="0" role="button" aria-pressed="false">
+    Enzel lena bch tekhdem l music <3 🎵
+  </div>
+</div>
+
+<script>
+  const playPrompt = document.getElementById('playPrompt');
+  const playBox = document.getElementById('playBox');
+  const audio = document.getElementById('bgMusic');
+  audio.volume = 0.2;
+
+  function startAudio() {
+    audio.play().then(() => {
+      playPrompt.style.display = 'none';
+    }).catch(() => {
+      alert("Playback failed. Please interact with the page.");
+    });
+  }
+
+  playBox.addEventListener('click', startAudio);
+
+  // Also allow keyboard "Enter" or "Space" key to activate for accessibility
+  playBox.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      startAudio();
+    }
+  });
+</script>
+
+
+
 
   <script>
     function createHeart() {
@@ -388,6 +493,52 @@
 
     setInterval(updateTimeCounter, 1000);
     updateTimeCounter();
+
+    const gifUrls = [
+  'https://media.tenor.com/VS-J-i-CVwAAAAAj/sanrio-kuromi.gif',
+  'https://media.tenor.com/e_yDx2QYYwYAAAAj/kuromi-sad.gif',
+  'https://media.tenor.com/XGOEzWYF7tsAAAAj/kuromi-chu.gif',
+  'https://media.tenor.com/lKna6yxFY9EAAAAj/kuromi-love.gif',
+  'https://media.tenor.com/Xu8Dzp6sydUAAAAi/kuromi-poking-ground.gif',
+  'https://media.tenor.com/zVvViQKqa0MAAAAj/psybirdb1oom.gif',
+  'https://media.tenor.com/wanDeabngygAAAAj/lejos-de-ti.gif',
+  'https://media.tenor.com/AP7DLtNJEOsAAAAm/kuromi-cute-kuromi.webp',
+  'https://media.tenor.com/rLbINLoXeysAAAAm/tee-hee.webp',
+  'https://media.tenor.com/pNtt-NRPEfMAAAAm/heart-stitch.webp',
+  'https://media.tenor.com/Rv3x7_Mlj1kAAAAm/stich-beso.webp',
+  'https://media.tenor.com/pLI0522ipGYAAAAm/stitch.webp',
+  'https://media.tenor.com/_6hs-gUk_z4AAAAm/stitch-stitch-no.webp',
+  'https://media.tenor.com/LRkmumZXsMMAAAAm/transparent-stitch.webp',
+  'https://media.tenor.com/zQV1EHnRyVMAAAAm/stitch-love.webp',
+  'https://media.tenor.com/xmfKUM80c8EAAAAm/i-love-you.webp',
+  '',
+  '',
+  '',
+  '',
+];
+
+function createFloatingGif() {
+  const container = document.querySelector('.floating-gifs');
+  const gif = document.createElement('img');
+  const gifUrl = gifUrls[Math.floor(Math.random() * gifUrls.length)];
+  gif.src = gifUrl;
+
+  gif.style.left = Math.random() * 100 + 'vw';
+
+  const size = 30 + Math.random() * 30;
+  gif.style.width = size + 'px';
+
+  gif.style.animationDuration = (3 + Math.random() * 3) + 's';
+
+  container.appendChild(gif);
+
+  gif.addEventListener('animationend', () => {
+    gif.remove();
+  });
+}
+
+setInterval(createFloatingGif, 800);
+
   </script>
 </body>
 </html>
